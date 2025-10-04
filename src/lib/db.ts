@@ -107,6 +107,31 @@ export async function getRecent() {
   return transactions;
 }
 
+export async function getAllTransactions() {
+  // Sync user dengan Clerk dan set RLS context
+  const userId = await syncUserWithClerk();
+  if (!userId) throw new Error("User not authenticated");
+  
+  await setUserContext(userId);
+
+  const transactions = await sql`
+    SELECT id::text as id, amount::float8 as amount, description, category, expense_date::text as date, 'expense' as type
+    FROM public.expenses
+    WHERE user_id = ${userId}
+    UNION ALL
+    SELECT id::text as id, amount::float8 as amount, description, category, income_date::text as date, 'income' as type
+    FROM public.income
+    WHERE user_id = ${userId}
+    UNION ALL
+    SELECT id::text as id, purchase_price::float8 as amount, name as description, 'Investment' as category, purchase_date::text as date, 'asset' as type
+    FROM public.assets
+    WHERE user_id = ${userId}
+    ORDER BY date DESC
+  `;
+
+  return transactions;
+}
+
 type ExpenseInput = { type: "expense"; amount: number; category: string; description: string; date: string };
 type IncomeInput = { type: "income"; amount: number; category: string; description: string; date: string };
 type AssetInput = { type: "asset"; name: string; description?: string; purchasePrice: number; currentValue: number; date: string };

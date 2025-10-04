@@ -203,7 +203,6 @@ export async function POST(req: Request) {
       // Has transactions, process them
       if (response.transactions && Array.isArray(response.transactions)) {
         let successCount = 0;
-        let totalAmount = 0;
         
         for (const transaction of response.transactions) {
           const result = txSchema.safeParse(transaction);
@@ -212,9 +211,6 @@ export async function POST(req: Request) {
             const tx: Tx = result.data;
             await insertTransaction(tx);
             successCount++;
-            if (tx.type !== 'asset') {
-              totalAmount += tx.amount;
-            }
           }
         }
         
