@@ -207,7 +207,7 @@ Secondary: #eec1a0 (Soft beige/tan, for call-to-action buttons, highlights)
 
 Accent: #a9a9a9 (Medium gray, for borders, disabled states, secondary text)
 
-Background: #ffffff (White, for main content background)
+Background: #FEFEFA (White, for main content background)
 
 6.2. app/ Directory Structure
 (dashboard): Route group for protected routes, accessible after authentication.
