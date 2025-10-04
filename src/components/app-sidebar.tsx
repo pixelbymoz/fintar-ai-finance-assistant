@@ -4,8 +4,8 @@ import * as React from "react"
 import Link from "next/link"
 import {
   BarChart3,
+  History,
   MessageSquare,
-  Settings2,
   TrendingUp,
 } from "lucide-react"
 
@@ -23,10 +23,15 @@ import {
 const data = {
   navMain: [
     {
-      title: "Dashboard",
+      title: "Dasbor",
       url: "/dashboard",
       icon: BarChart3,
       isActive: true,
+    },
+    {
+      title: "Riwayat",
+      url: "/dashboard/history",
+      icon: History,
     },
    /* {
       title: "Settings",
@@ -65,7 +70,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <Link href="/chatbot" prefetch={true}>
           <button className="w-full flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer" style={{backgroundColor: '#eec1a0', color: '#010B13'}} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e6b894'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#eec1a0'}>
             <MessageSquare className="h-5 w-5" />
-            Chat with Fintar
+            Chat dengan Fintar
           </button>
         </Link>
       </div>

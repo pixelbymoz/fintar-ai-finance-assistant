@@ -1,35 +1,45 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import dynamic from "next/dynamic";
 import { getTotals, getRecent } from "@/lib/db";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TrendingUp, TrendingDown, Wallet, PiggyBank } from "lucide-react";
 
 const IncomeExpenseChart = dynamic(() => import("@/components/IncomeExpenseChart"), {
   loading: () => (
-    <div className="border rounded-lg p-6 bg-card animate-pulse">
-      <div className="h-6 bg-gray-200 rounded w-40 mb-4"></div>
-      <div className="h-64 bg-gray-200 rounded"></div>
-    </div>
+    <Card className="animate-pulse">
+      <CardHeader>
+        <div className="h-6 bg-gray-200 rounded w-40"></div>
+      </CardHeader>
+      <CardContent>
+        <div className="h-64 bg-gray-200 rounded"></div>
+      </CardContent>
+    </Card>
   ),
 });
 
 const RecentTransactions = dynamic(() => import("@/components/RecentTransactions"), {
   loading: () => (
-    <div className="border rounded-lg p-6 bg-card animate-pulse">
-      <div className="h-6 bg-gray-200 rounded w-40 mb-4"></div>
-      <div className="space-y-3">
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
-              <div>
-                <div className="h-4 bg-gray-200 rounded w-24 mb-1"></div>
-                <div className="h-3 bg-gray-200 rounded w-16"></div>
+    <Card className="animate-pulse">
+      <CardHeader>
+        <div className="h-6 bg-gray-200 rounded w-40"></div>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-3">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
+                <div>
+                  <div className="h-4 bg-gray-200 rounded w-24 mb-1"></div>
+                  <div className="h-3 bg-gray-200 rounded w-16"></div>
+                </div>
               </div>
+              <div className="h-4 bg-gray-200 rounded w-20"></div>
             </div>
-            <div className="h-4 bg-gray-200 rounded w-20"></div>
-          </div>
-        ))}
-      </div>
-    </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   ),
 });
 import {
@@ -60,23 +70,74 @@ export default async function Page() {
 
     dashboardContent = (
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="border rounded-lg p-6 bg-card">
-            <div className="text-sm text-muted-foreground">Total Income</div>
-            <div className="text-2xl font-semibold text-green-600">Rp {totals.income.toLocaleString('id-ID')}</div>
-          </div>
-          <div className="border rounded-lg p-6 bg-card">
-            <div className="text-sm text-muted-foreground">Total Expenses</div>
-            <div className="text-2xl font-semibold text-red-600">Rp {totals.expenses.toLocaleString('id-ID')}</div>
-          </div>
-          <div className="border rounded-lg p-6 bg-card">
-            <div className="text-sm text-muted-foreground">Total Assets</div>
-            <div className="text-2xl font-semibold text-blue-600">Rp {totals.assets.toLocaleString('id-ID')}</div>
-          </div>
-          <div className="border rounded-lg p-6 bg-card">
-            <div className="text-sm text-muted-foreground">Net Worth</div>
-            <div className="text-2xl font-semibold text-purple-600">Rp {totals.netWorth.toLocaleString('id-ID')}</div>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="hover:shadow-md transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Total Pendapatan
+              </CardTitle>
+              <TrendingUp className="h-4 w-4 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">
+                Rp {totals.income.toLocaleString('id-ID')}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                +20.1% dari bulan lalu
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card className="hover:shadow-md transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Total Pengeluaran
+              </CardTitle>
+              <TrendingDown className="h-4 w-4 text-red-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-red-600">
+                Rp {totals.expenses.toLocaleString('id-ID')}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                +10.5% dari bulan lalu
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card className="hover:shadow-md transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Total Aset
+              </CardTitle>
+              <Wallet className="h-4 w-4 text-blue-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-600">
+                Rp {totals.assets.toLocaleString('id-ID')}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                +5.2% dari bulan lalu
+              </p>
+            </CardContent>
+          </Card>
+          
+          <Card className="hover:shadow-md transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Kekayaan Bersih
+              </CardTitle>
+              <PiggyBank className="h-4 w-4 text-purple-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-purple-600">
+                Rp {totals.netWorth.toLocaleString('id-ID')}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                +15.3% dari bulan lalu
+              </p>
+            </CardContent>
+          </Card>
         </div>
 
         <IncomeExpenseChart data={chartData} />
@@ -87,7 +148,7 @@ export default async function Page() {
   } catch {
     dashboardContent = (
       <div className="border rounded-lg p-6 bg-red-50 text-red-900">
-        Please sign in to view your dashboard.
+        Silakan masuk untuk melihat dasbor Anda.
       </div>
     );
   }
@@ -104,12 +165,12 @@ export default async function Page() {
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
                   <BreadcrumbLink href="/">
-                    Home
+                    Beranda
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Dashboard</BreadcrumbPage>
+                  <BreadcrumbPage>Dasbor</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
@@ -117,8 +178,8 @@ export default async function Page() {
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4">
           <div className="space-y-4 mb-4">
-            <h1 className="text-xl font-semibold">Financial Dashboard</h1>
-            <p className="text-sm text-gray-600">Monitor your business income, expenses, and assets at a glance.</p>
+            <h1 className="text-xl font-semibold">Dasbor Keuangan</h1>
+            <p className="text-sm text-gray-600">Pantau pendapatan, pengeluaran, dan aset bisnis Anda secara sekilas.</p>
           </div>
           {dashboardContent}
         </div>

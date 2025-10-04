@@ -13,9 +13,6 @@ const nextConfig: NextConfig = {
   images: {
     formats: ['image/webp', 'image/avif'],
   },
-  
-  // Enable SWC minification for better performance
-  swcMinify: true,
 };
 
 export default nextConfig;

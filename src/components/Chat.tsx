@@ -63,7 +63,7 @@ export default function Chat() {
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-    } catch (err) {
+    } catch {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         content: "Ups! Sepertinya ada masalah koneksi. Coba lagi dalam beberapa saat ya! 🔄",
