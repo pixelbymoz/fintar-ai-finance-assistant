@@ -1,18 +1,10 @@
 import { AppSidebar } from "@/components/app-sidebar"
-import dynamic from "next/dynamic";
+import Chat from "@/components/Chat";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
-
-const Chat = dynamic(() => import("@/components/Chat"), {
-  loading: () => (
-    <div className="flex items-center justify-center h-64">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-secondary"></div>
-    </div>
-  ),
-});
 import {
   Breadcrumb,
   BreadcrumbItem,
