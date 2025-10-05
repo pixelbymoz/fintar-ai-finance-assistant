@@ -134,7 +134,7 @@ export async function getAllTransactions() {
 
 type ExpenseInput = { type: "expense"; amount: number; category: string; description: string; date: string };
 type IncomeInput = { type: "income"; amount: number; category: string; description: string; date: string };
-type AssetInput = { type: "asset"; name: string; description?: string; purchasePrice: number; currentValue: number; date: string };
+type AssetInput = { type: "asset"; name: string; description?: string; purchasePrice: number; currentValue?: number; date?: string };
 type InsertInput = ExpenseInput | IncomeInput | AssetInput;
 
 export async function insertTransaction(input: InsertInput) {
@@ -160,6 +160,8 @@ export async function insertTransaction(input: InsertInput) {
       `;
       return result[0];
     } else if (input.type === "asset") {
+      const currentValue = input.currentValue ?? input.purchasePrice;
+      const date = input.date ?? new Date().toISOString().split('T')[0];
       const result = await sql`
         INSERT INTO public.assets (user_id, name, description, purchase_price, current_value, purchase_date)
         VALUES (
@@ -167,8 +169,8 @@ export async function insertTransaction(input: InsertInput) {
           ${input.name},
           ${input.description || ''},
           ${input.purchasePrice},
-          ${input.currentValue},
-          ${input.date}
+          ${currentValue},
+          ${date}
         )
         RETURNING *
       `;

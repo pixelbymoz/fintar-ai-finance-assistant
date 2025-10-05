@@ -1,25 +1,24 @@
 "use client";
+import { useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { TrendingUp } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type Props = {
-  data: { name: string; income: number; expenses: number }[];
+  data: { name: string; income: number; expenses: number; income_prev?: number; expenses_prev?: number }[];
 };
 
 const chartConfig = {
-  income: {
-    label: "Pendapatan",
-    color: "hsl(var(--chart-1))",
-  },
-  expenses: {
-    label: "Pengeluaran", 
-    color: "hsl(var(--chart-2))",
-  },
+  income: { label: "Pendapatan (minggu ini)", color: "hsl(var(--primary))" },
+  expenses: { label: "Pengeluaran (minggu ini)", color: "hsl(var(--secondary))" },
+  income_prev: { label: "Pendapatan (minggu lalu)", color: "hsl(var(--primary))" },
+  expenses_prev: { label: "Pengeluaran (minggu lalu)", color: "hsl(var(--secondary))" },
 } satisfies ChartConfig;
 
 export default function IncomeExpenseChart({ data }: Props) {
+  const [compareMode, setCompareMode] = useState<"none" | "prev_week">("none");
   return (
     <Card>
       <CardHeader>
@@ -27,9 +26,22 @@ export default function IncomeExpenseChart({ data }: Props) {
           <TrendingUp className="h-5 w-5" />
           Pendapatan vs Pengeluaran
         </CardTitle>
-        <CardDescription>
-          Perbandingan bulanan pendapatan dan pengeluaran Anda
-        </CardDescription>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <CardDescription>
+            Data harian minggu ini (Minggu–Sabtu). Tambahkan perbandingan jika perlu.
+          </CardDescription>
+          <div className="mt-2 sm:mt-0">
+            <Select value={compareMode} onValueChange={(v: "none" | "prev_week") => setCompareMode(v)}>
+              <SelectTrigger className="w-[250px]">
+                <SelectValue placeholder="Pilih perbandingan" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Minggu Ini</SelectItem>
+                <SelectItem value="prev_week">Bandingkan dengan minggu lalu</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[300px] w-full">
@@ -52,10 +64,18 @@ export default function IncomeExpenseChart({ data }: Props) {
               />
               <ChartTooltip 
                 content={<ChartTooltipContent />}
-                formatter={(value: number, name: string) => [
-                  `Rp ${value.toLocaleString('id-ID')}`,
-                  name === 'income' ? 'Pendapatan' : 'Pengeluaran'
-                ]}
+                formatter={(value: number, name: string) => {
+                  const labelMap: Record<string, string> = {
+                    income: 'Pendapatan (minggu ini)',
+                    expenses: 'Pengeluaran (minggu ini)',
+                    income_prev: 'Pendapatan (minggu lalu)',
+                    expenses_prev: 'Pengeluaran (minggu lalu)'
+                  };
+                  return [
+                    `Rp ${value.toLocaleString('id-ID')}`,
+                    labelMap[name] || name
+                  ];
+                }}
               />
               <Bar 
                 dataKey="income" 
@@ -67,8 +87,26 @@ export default function IncomeExpenseChart({ data }: Props) {
                 dataKey="expenses" 
                 fill="var(--color-expenses)" 
                 radius={[4, 4, 0, 0]}
-                className="fill-destructive"
+                className="fill-secondary"
               />
+              {compareMode === "prev_week" && (
+                <>
+                  <Bar 
+                    dataKey="income_prev" 
+                    fill="var(--color-income_prev)" 
+                    radius={[4, 4, 0, 0]}
+                    className="fill-primary"
+                    fillOpacity={0.35}
+                  />
+                  <Bar 
+                    dataKey="expenses_prev" 
+                    fill="var(--color-expenses_prev)" 
+                    radius={[4, 4, 0, 0]}
+                    className="fill-secondary"
+                    fillOpacity={0.35}
+                  />
+                </>
+              )}
             </BarChart>
           </ResponsiveContainer>
         </ChartContainer>

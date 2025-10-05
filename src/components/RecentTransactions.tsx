@@ -4,7 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight, Receipt, TrendingUp, TrendingDown, Wallet } from "lucide-react";
+import { ChevronLeft, ChevronRight, Receipt, TrendingUp, TrendingDown, Wallet, Edit, Trash2 } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 type Tx = {
   id: string;
@@ -23,11 +28,23 @@ const ITEMS_PER_PAGE = 5;
 
 export default function RecentTransactions({ items }: Props) {
   const [currentPage, setCurrentPage] = useState(1);
+  const router = useRouter();
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState<Tx | null>(null);
+  const [transactionToDelete, setTransactionToDelete] = useState<Tx | null>(null);
   
-  const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE);
+  // Sort dari yang paling baru ke yang lama
+  const sortedItems = [...items].sort((a, b) => {
+    const ta = new Date(a.date).getTime();
+    const tb = new Date(b.date).getTime();
+    return tb - ta; // desc
+  });
+
+  const totalPages = Math.ceil(sortedItems.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentItems = items.slice(startIndex, endIndex);
+  const currentItems = sortedItems.slice(startIndex, endIndex);
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -70,6 +87,54 @@ export default function RecentTransactions({ items }: Props) {
     });
   };
 
+  const handleEdit = (transaction: Tx) => {
+    setEditingTransaction(transaction);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleDelete = (transaction: Tx) => {
+    setTransactionToDelete(transaction);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingTransaction) return;
+    try {
+      const response = await fetch(`/api/transactions/${editingTransaction.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editingTransaction),
+      });
+      if (response.ok) {
+        toast.success("Transaksi berhasil diperbarui!");
+        setIsEditDialogOpen(false);
+        setEditingTransaction(null);
+        router.refresh();
+      } else {
+        toast.error("Gagal memperbarui transaksi");
+      }
+    } catch {
+      toast.error("Terjadi kesalahan saat memperbarui transaksi");
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!transactionToDelete) return;
+    try {
+      const response = await fetch(`/api/transactions/${transactionToDelete.id}`, { method: 'DELETE' });
+      if (response.ok) {
+        toast.success("Transaksi berhasil dihapus!");
+        setIsDeleteDialogOpen(false);
+        setTransactionToDelete(null);
+        router.refresh();
+      } else {
+        toast.error("Gagal menghapus transaksi");
+      }
+    } catch {
+      toast.error("Terjadi kesalahan saat menghapus transaksi");
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -95,12 +160,13 @@ export default function RecentTransactions({ items }: Props) {
                 <TableHead className="font-semibold text-primary hidden md:table-cell">Deskripsi</TableHead>
                 <TableHead className="font-semibold text-primary text-right">Jumlah</TableHead>
                 <TableHead className="font-semibold text-primary hidden sm:table-cell">Tanggal</TableHead>
+                <TableHead className="font-semibold text-primary text-right">Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {currentItems.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                     Tidak ada transaksi ditemukan
                   </TableCell>
                 </TableRow>
@@ -131,6 +197,14 @@ export default function RecentTransactions({ items }: Props) {
                     </TableCell>
                     <TableCell className="hidden sm:table-cell text-muted-foreground">
                       {formatDate(transaction.date)}
+                    </TableCell>
+                    <TableCell className="text-right space-x-2">
+                      <Button variant="outline" size="sm" onClick={() => handleEdit(transaction)}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => handleDelete(transaction)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))
@@ -180,6 +254,63 @@ export default function RecentTransactions({ items }: Props) {
           </div>
         )}
       </CardContent>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Transaksi</DialogTitle>
+            <DialogDescription>Ubah detail transaksi di bawah ini</DialogDescription>
+          </DialogHeader>
+          {editingTransaction && (
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">Tipe</label>
+                <Select value={editingTransaction.type} onValueChange={(v: "income"|"expense"|"asset") => setEditingTransaction({ ...editingTransaction, type: v })}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="income">Income</SelectItem>
+                    <SelectItem value="expense">Expense</SelectItem>
+                    <SelectItem value="asset">Asset</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Kategori</label>
+                <Input value={editingTransaction.category} onChange={(e) => setEditingTransaction({ ...editingTransaction, category: e.target.value })} />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Deskripsi</label>
+                <Input value={editingTransaction.description ?? ""} onChange={(e) => setEditingTransaction({ ...editingTransaction, description: e.target.value })} />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Jumlah</label>
+                <Input type="number" value={editingTransaction.amount} onChange={(e) => setEditingTransaction({ ...editingTransaction, amount: Number(e.target.value) })} />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>Batal</Button>
+            <Button onClick={handleSaveEdit}>Simpan</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Hapus Transaksi</DialogTitle>
+            <DialogDescription>Apakah Anda yakin ingin menghapus transaksi ini?</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Batal</Button>
+            <Button variant="destructive" onClick={handleConfirmDelete}>Hapus</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

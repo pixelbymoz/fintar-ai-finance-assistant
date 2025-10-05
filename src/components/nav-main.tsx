@@ -38,8 +38,8 @@ export function NavMain({
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
-      <SidebarMenu>
+      <SidebarGroupLabel>Menu</SidebarGroupLabel>
+      <SidebarMenu className="gap-3">
         {items.map((item) => {
           const isActive = pathname === item.url
           const hasActiveSubItem = item.items?.some(subItem => pathname === subItem.url)
@@ -54,17 +54,17 @@ export function NavMain({
               <SidebarMenuItem>
                 {item.items ? (
                   <CollapsibleTrigger asChild>
-                    <SidebarMenuButton tooltip={item.title} isActive={isActive}>
-                      {item.icon && <item.icon />}
-                      <span>{item.title}</span>
+                    <SidebarMenuButton tooltip={item.title} isActive={isActive} size="lg" className="gap-3">
+                      {item.icon && <item.icon className="h-6 w-6" />}
+                      <span className="text-base font-medium">{item.title}</span>
                       <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
                 ) : (
-                  <SidebarMenuButton tooltip={item.title} isActive={isActive} asChild>
+                  <SidebarMenuButton tooltip={item.title} isActive={isActive} asChild size="lg" className="gap-3">
                     <Link href={item.url} prefetch={true}>
-                      {item.icon && <item.icon />}
-                      <span>{item.title}</span>
+                      {item.icon && <item.icon className="h-6 w-6" />}
+                      <span className="text-base font-medium">{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 )}
