@@ -49,34 +49,55 @@ export default function RecentTransactions({ items }: Props) {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case "income":
-        return <TrendingUp className="h-4 w-4 text-green-600" />;
+        return (
+          <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-muted">
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </span>
+        );
       case "expense":
-        return <TrendingDown className="h-4 w-4 text-red-600" />;
+        return (
+          <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-muted">
+            <TrendingDown className="h-4 w-4 text-muted-foreground" />
+          </span>
+        );
       case "asset":
-        return <Wallet className="h-4 w-4 text-blue-600" />;
+        return (
+          <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-muted">
+            <Wallet className="h-4 w-4 text-muted-foreground" />
+          </span>
+        );
       default:
-        return <Receipt className="h-4 w-4" />;
+        return (
+          <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-muted">
+            <Receipt className="h-4 w-4 text-muted-foreground" />
+          </span>
+        );
     }
   };
 
   const getTypeBadge = (type: string) => {
-    const variants = {
-      income: "default",
-      expense: "destructive", 
-      asset: "secondary"
-    } as const;
-    
+    const dotClass =
+      type === "income"
+        ? "bg-emerald-500"
+        : type === "expense"
+        ? "bg-rose-500"
+        : type === "asset"
+        ? "bg-sky-500"
+        : "bg-muted-foreground";
+
+    const label = type;
+
     return (
-      <Badge variant={variants[type as keyof typeof variants] || "outline"} className="capitalize">
-        {type}
+      <Badge variant="outline" className="capitalize gap-1">
+        <span className={`h-2 w-2 rounded-full ${dotClass}`} />
+        {label}
       </Badge>
     );
   };
 
-  const formatAmount = (amount: number, type: string) => {
+  const formatAmount = (amount: number, _type: string) => {
     const formatted = `Rp ${amount.toLocaleString('id-ID')}`;
-    const colorClass = type === 'income' ? 'text-green-600' : type === 'expense' ? 'text-red-600' : 'text-blue-600';
-    return <span className={`font-medium ${colorClass}`}>{formatted}</span>;
+    return <span className="font-semibold text-foreground">{formatted}</span>;
   };
 
   const formatDate = (dateString: string) => {

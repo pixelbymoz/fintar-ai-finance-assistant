@@ -64,7 +64,7 @@ export function NavMain({
                   <SidebarMenuButton tooltip={item.title} isActive={isActive} asChild size="lg" className="gap-3">
                     <Link href={item.url} prefetch={true}>
                       {item.icon && <item.icon className="h-6 w-6" />}
-                      <span className="text-base font-medium">{item.title}</span>
+                      <span className="text-base font-medium group-data-[collapsible=icon]:hidden">{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 )}

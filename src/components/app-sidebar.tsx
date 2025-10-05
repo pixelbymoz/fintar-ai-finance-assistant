@@ -67,7 +67,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <div className="flex items-center gap-2 px-4 py-2">
           <TrendingUp className="h-6 w-6 text-secondary" />
-          <span className="text-lg font-semibold text-secondary">Fintar</span>
+          <span className="text-lg font-semibold text-secondary group-data-[collapsible=icon]:hidden">Fintar</span>
         </div>
       </SidebarHeader>
       

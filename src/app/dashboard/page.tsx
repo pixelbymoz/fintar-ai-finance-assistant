@@ -81,10 +81,12 @@ export default async function Page() {
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Total Pendapatan
               </CardTitle>
-              <TrendingUp className="h-4 w-4 text-green-600" />
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-muted">
+                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              </span>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-semibold text-foreground">
                 Rp {totals.income.toLocaleString('id-ID')}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
@@ -98,10 +100,12 @@ export default async function Page() {
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Total Pengeluaran
               </CardTitle>
-              <TrendingDown className="h-4 w-4 text-red-600" />
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-muted">
+                <TrendingDown className="h-4 w-4 text-muted-foreground" />
+              </span>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">
+              <div className="text-2xl font-semibold text-foreground">
                 Rp {totals.expenses.toLocaleString('id-ID')}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
@@ -115,10 +119,12 @@ export default async function Page() {
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Total Aset
               </CardTitle>
-              <Wallet className="h-4 w-4 text-blue-600" />
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-muted">
+                <Wallet className="h-4 w-4 text-muted-foreground" />
+              </span>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">
+              <div className="text-2xl font-semibold text-foreground">
                 Rp {totals.assets.toLocaleString('id-ID')}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
@@ -132,10 +138,12 @@ export default async function Page() {
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Kekayaan Bersih
               </CardTitle>
-              <PiggyBank className="h-4 w-4 text-purple-600" />
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-muted">
+                <PiggyBank className="h-4 w-4 text-muted-foreground" />
+              </span>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-purple-600">
+              <div className="text-2xl font-semibold text-foreground">
                 Rp {totals.netWorth.toLocaleString('id-ID')}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
