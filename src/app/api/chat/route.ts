@@ -177,7 +177,7 @@ Tips: Update nilai saat ini secara berkala agar analisis kekayaan Anda tetap aku
       const normalized = text.trim().toLowerCase();
       const unitMatch = normalized.match(/([\d.,]+)\s*(jt|juta|rb|ribu|k)?/);
       if (!unitMatch) return null;
-      let raw = unitMatch[1].replace(/\./g, "").replace(/,/g, ".");
+      const raw = unitMatch[1].replace(/\./g, "").replace(/,/g, ".");
       const num = parseFloat(raw);
       if (isNaN(num)) return null;
       const unit = unitMatch[2] || "";
@@ -455,11 +455,12 @@ Tips: Update nilai saat ini secara berkala agar analisis kekayaan Anda tetap aku
       const assetName = tx.type === "expense" ? tx.description : "Aset";
       const assetDate =
         tx.type === "expense" || tx.type === "income" ? tx.date : new Date().toISOString().split("T")[0];
+      const amt = tx.amount; // tx.type is expense or income here
       await insertTransaction({
         type: "asset",
         name: assetName,
-        purchasePrice: (tx as any).amount,
-        currentValue: (tx as any).amount,
+        purchasePrice: amt,
+        currentValue: amt,
         date: assetDate,
       });
 
@@ -467,7 +468,7 @@ Tips: Update nilai saat ini secara berkala agar analisis kekayaan Anda tetap aku
       if (shouldAutoExpense(message)) {
         await insertTransaction({
           type: "expense",
-          amount: (tx as any).amount,
+          amount: amt,
           category: "other",
           description: `Pembelian aset: ${assetName}`,
           date: assetDate,
@@ -475,7 +476,7 @@ Tips: Update nilai saat ini secara berkala agar analisis kekayaan Anda tetap aku
         extraNote = " (pengeluaran otomatis ikut dicatat)";
       }
 
-      const prettyAmt = (tx as any).amount.toLocaleString("id-ID");
+      const prettyAmt = amt.toLocaleString("id-ID");
       const summary = `Berhasil mencatat aset '${assetName}' sebesar Rp ${prettyAmt}${extraNote}.`;
       return NextResponse.json({ message: summary });
     }
