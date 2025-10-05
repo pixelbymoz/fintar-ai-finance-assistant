@@ -34,6 +34,11 @@ const data = {
       url: "/dashboard/history",
       icon: History,
     },
+    {
+      title: "Asisten Fintar",
+      url: "/dashboard/chatbot",
+      icon: MessageSquare,
+    },
    /* {
       title: "Settings",
       url: "/settings",
@@ -66,15 +71,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </div>
       </SidebarHeader>
       
-      {/* Chat with Fintar Button */}
-      <div className="px-4 pb-4">
-        <Button asChild className="w-full bg-secondary text-primary hover:bg-secondary/90 shadow-sm">
-          <Link href="/chatbot" prefetch={true} className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5" />
-            Chat dengan Fintar
-          </Link>
-        </Button>
-      </div>
+      {/* Chat FAB tersedia global; tombol sidebar dihapus untuk menghindari duplikasi */}
       
       <SidebarContent>
         <NavMain items={data.navMain} />

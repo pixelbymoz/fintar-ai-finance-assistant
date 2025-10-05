@@ -42,9 +42,9 @@ CREATE TABLE IF NOT EXISTS public.assets (
   user_id TEXT NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   description TEXT,
-  purchase_price DECIMAL(12,2) NOT NULL,
-  current_value DECIMAL(12,2) NOT NULL,
-  purchase_date DATE NOT NULL,
+  purchase_price NUMERIC(14,2) NOT NULL,
+  current_value NUMERIC(14,2) NOT NULL,
+  purchase_date DATE NOT NULL DEFAULT CURRENT_DATE,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
