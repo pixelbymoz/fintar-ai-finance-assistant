@@ -36,7 +36,7 @@ export default function Home() {
                 <div className="w-12 h-12 bg-secondary rounded-lg flex items-center justify-center mx-auto">
                   <span className="text-primary font-bold text-xl">📊</span>
                 </div>
-                <h3 className="font-semibold text-primary">Dasbor Cerdas</h3>
+                <h3 className="font-semibold text-primary">Dashboard Cerdas</h3>
                 <p className="text-sm text-gray-600">Lihat metrik komprehensif, grafik, dan transaksi terbaru</p>
               </div>
               

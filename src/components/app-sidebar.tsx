@@ -11,6 +11,7 @@ import {
 
 import { NavMain } from "@/components/nav-main"
 import { ClerkUserProfile } from "@/components/clerk-user-profile"
+import { Button } from "@/components/ui/button"
 import {
   Sidebar,
   SidebarContent,
@@ -23,13 +24,13 @@ import {
 const data = {
   navMain: [
     {
-      title: "Dasbor",
+      title: "Dashboard",
       url: "/dashboard",
       icon: BarChart3,
       isActive: true,
     },
     {
-      title: "Riwayat",
+      title: "Riwayat Transaksi",
       url: "/dashboard/history",
       icon: History,
     },
@@ -67,12 +68,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       
       {/* Chat with Fintar Button */}
       <div className="px-4 pb-4">
-        <Link href="/chatbot" prefetch={true}>
-          <button className="w-full flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer" style={{backgroundColor: '#eec1a0', color: '#010B13'}} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e6b894'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#eec1a0'}>
+        <Button asChild className="w-full bg-secondary text-primary hover:bg-secondary/90 shadow-sm">
+          <Link href="/chatbot" prefetch={true} className="flex items-center gap-2">
             <MessageSquare className="h-5 w-5" />
             Chat dengan Fintar
-          </button>
-        </Link>
+          </Link>
+        </Button>
       </div>
       
       <SidebarContent>

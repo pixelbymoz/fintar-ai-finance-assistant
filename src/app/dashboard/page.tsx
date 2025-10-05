@@ -110,7 +110,7 @@ export default async function Page() {
   } catch {
     dashboardContent = (
       <div className="border rounded-lg p-6 bg-red-50 text-red-900">
-        Silakan masuk untuk melihat dasbor Anda.
+        Silakan masuk untuk melihat Dashboard Anda.
       </div>
     );
   }
@@ -119,7 +119,7 @@ export default async function Page() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+        <header className="flex h-16 shrink-0 items-center gap-2 bg-accent border-b border-border transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
@@ -132,7 +132,7 @@ export default async function Page() {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Dasbor</BreadcrumbPage>
+                  <BreadcrumbPage>Dashboard</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
@@ -140,8 +140,8 @@ export default async function Page() {
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4">
           <div className="space-y-4 mb-4">
-            <h1 className="text-xl font-semibold">Dasbor Keuangan</h1>
-            <p className="text-sm text-gray-600">Pantau pendapatan, pengeluaran, dan aset bisnis Anda secara sekilas.</p>
+            <h1 className="text-xl font-semibold">Dashboard</h1>
+            <p className="text-sm text-muted-foreground">Pantau pendapatan, pengeluaran, dan aset bisnis Anda secara sekilas.</p>
           </div>
           {dashboardContent}
         </div>
