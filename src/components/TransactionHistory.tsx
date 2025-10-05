@@ -273,12 +273,7 @@ export function TransactionHistory({ transactions }: Props) {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Transaction History</CardTitle>
-        <CardDescription>
-          Kelola dan lihat semua transaksi keuangan Anda dengan fitur filtering, sorting, dan pagination
-        </CardDescription>
-      </CardHeader>
+      
       <CardContent>
         {/* Filters and Search */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
