@@ -95,7 +95,7 @@ export default function RecentTransactions({ items }: Props) {
     );
   };
 
-  const formatAmount = (amount: number, _type: string) => {
+  const formatAmount = (amount: number) => {
     const formatted = `Rp ${amount.toLocaleString('id-ID')}`;
     return <span className="font-semibold text-foreground">{formatted}</span>;
   };
@@ -214,7 +214,7 @@ export default function RecentTransactions({ items }: Props) {
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      {formatAmount(transaction.amount, transaction.type)}
+                      {formatAmount(transaction.amount)}
                     </TableCell>
                     <TableCell className="hidden sm:table-cell text-muted-foreground">
                       {formatDate(transaction.date)}

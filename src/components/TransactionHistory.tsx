@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,7 +23,8 @@ import {
   Wallet,
   ArrowUpDown,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  Receipt
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -196,7 +197,7 @@ export function TransactionHistory({ transactions }: Props) {
     );
   };
 
-  const formatAmount = (amount: number, _type: string) => {
+  const formatAmount = (amount: number) => {
     const formatted = `Rp ${amount.toLocaleString('id-ID')}`;
     return <span className="font-semibold text-foreground">{formatted}</span>;
   };
@@ -436,7 +437,7 @@ export function TransactionHistory({ transactions }: Props) {
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      {formatAmount(transaction.amount, transaction.type)}
+                      {formatAmount(transaction.amount)}
                     </TableCell>
                     <TableCell className="hidden sm:table-cell text-muted-foreground">
                       {formatDate(transaction.date)}
