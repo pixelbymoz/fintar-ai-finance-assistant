@@ -89,15 +89,15 @@ export async function getRecent() {
   await setUserContext(userId);
 
   const transactions = await sql`
-    SELECT id::text as id, amount::float8 as amount, description, category, expense_date::text as date, 'expense' as type
+    SELECT id::text as id, amount::float8 as amount, description, category, created_at::text as date, 'expense' as type
     FROM public.expenses
     WHERE user_id = ${userId}
     UNION ALL
-    SELECT id::text as id, amount::float8 as amount, description, category, income_date::text as date, 'income' as type
+    SELECT id::text as id, amount::float8 as amount, description, category, created_at::text as date, 'income' as type
     FROM public.income
     WHERE user_id = ${userId}
     UNION ALL
-    SELECT id::text as id, purchase_price::float8 as amount, name as description, 'Investment' as category, purchase_date::text as date, 'asset' as type
+    SELECT id::text as id, purchase_price::float8 as amount, name as description, 'Investment' as category, created_at::text as date, 'asset' as type
     FROM public.assets
     WHERE user_id = ${userId}
     ORDER BY date DESC
@@ -115,15 +115,15 @@ export async function getAllTransactions() {
   await setUserContext(userId);
 
   const transactions = await sql`
-    SELECT id::text as id, amount::float8 as amount, description, category, expense_date::text as date, 'expense' as type
+    SELECT id::text as id, amount::float8 as amount, description, category, created_at::text as date, 'expense' as type
     FROM public.expenses
     WHERE user_id = ${userId}
     UNION ALL
-    SELECT id::text as id, amount::float8 as amount, description, category, income_date::text as date, 'income' as type
+    SELECT id::text as id, amount::float8 as amount, description, category, created_at::text as date, 'income' as type
     FROM public.income
     WHERE user_id = ${userId}
     UNION ALL
-    SELECT id::text as id, purchase_price::float8 as amount, name as description, 'Investment' as category, purchase_date::text as date, 'asset' as type
+    SELECT id::text as id, purchase_price::float8 as amount, name as description, 'Investment' as category, created_at::text as date, 'asset' as type
     FROM public.assets
     WHERE user_id = ${userId}
     ORDER BY date DESC

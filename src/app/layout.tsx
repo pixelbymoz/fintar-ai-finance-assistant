@@ -4,6 +4,7 @@ import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/sonner";
 import GlobalChatLauncher from "@/components/GlobalChatLauncher";
+import { Analytics } from "@vercel/analytics/next";
 
 const openSans = Open_Sans({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({
         <body className={`${openSans.variable} ${geistMono.variable} antialiased`}>
           {children}
           <GlobalChatLauncher />
+          <Analytics />
           <Toaster
             position="top-center"
             closeButton

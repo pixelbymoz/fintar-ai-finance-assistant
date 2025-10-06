@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { insertTransaction } from "@/lib/db";
+import { insertTransaction, getAllTransactions } from "@/lib/db";
 
 const expenseSchema = z.object({
   type: z.literal("expense"),
@@ -357,6 +357,232 @@ Tips: Update nilai saat ini secara berkala agar analisis kekayaan Anda tetap aku
       return NextResponse.json({
         message: `Berhasil mencatat aset '${simpleAsset.name}' sebesar Rp ${prettyAmt}${extraNote}. Tanggal otomatis: ${simpleAsset.date}. Nilai saat ini diset sama dengan harga beli. 📝`,
       });
+    }
+
+    // ADVANCED: handle time-range queries for income/expense/asset summaries
+    const lowerMsg = message.toLowerCase();
+
+    const MONTHS_ID: Record<string, number> = {
+      januari: 0, january: 0, jan: 0,
+      februari: 1, february: 1, feb: 1,
+      maret: 2, march: 2, mar: 2,
+      april: 3, apr: 3,
+      mei: 4, may: 4,
+      juni: 5, june: 5, jun: 5,
+      juli: 6, july: 6, jul: 6,
+      agustus: 7, august: 7, agu: 7, aug: 7,
+      september: 8, sep: 8,
+      oktober: 9, october: 9, okt: 9, oct: 9,
+      november: 10, nov: 10,
+      desember: 11, december: 11, des: 11, dec: 11,
+    };
+
+    type Range = { start: string; end: string; label: string };
+    const pad = (n: number) => String(n).padStart(2, '0');
+
+    const todayJakarta = () => {
+      const now = new Date();
+      const parts = new Intl.DateTimeFormat('id-ID', { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(now);
+      const y = Number(parts.find(p => p.type === 'year')?.value);
+      const m = Number(parts.find(p => p.type === 'month')?.value);
+      const d = Number(parts.find(p => p.type === 'day')?.value);
+      return { y, m, d };
+    };
+
+    const toISODate = (y: number, m1to12: number, d: number) => `${y}-${pad(m1to12)}-${pad(d)}`;
+
+    const monthIndex = (name: string) => {
+      const idx = MONTHS_ID[name.toLowerCase() as keyof typeof MONTHS_ID];
+      return typeof idx === 'number' ? idx : undefined;
+    };
+
+    const parseExplicitRange = (text: string): Range | null => {
+      const t = text.toLowerCase();
+      // Pattern: "1–15 Januari 2025" or "1-15 Januari 2025"
+      const reDash = /\b(\d{1,2})\s*[–-]\s*(\d{1,2})\s+([a-zA-Z]+)\s+(\d{4})\b/;
+      const m1 = t.match(reDash);
+      if (m1) {
+        const d1 = Number(m1[1]);
+        const d2 = Number(m1[2]);
+        const monName = m1[3];
+        const year = Number(m1[4]);
+        const midx = monthIndex(monName);
+        if (midx !== undefined) {
+          const mm = midx + 1;
+          const start = toISODate(year, mm, d1);
+          const end = toISODate(year, mm, d2);
+          return { start, end, label: `${d1}–${d2} ${monName} ${year}` };
+        }
+      }
+      // Pattern: "dari 1 Januari 2025 sampai 15 Januari 2025"
+      const reFromTo = /\bdari\s+(\d{1,2})\s+([a-zA-Z]+)\s+(\d{4})\s+(?:sampai|hingga|to)\s+(\d{1,2})(?:\s+([a-zA-Z]+))?(?:\s+(\d{4}))?\b/;
+      const m2 = t.match(reFromTo);
+      if (m2) {
+        const d1 = Number(m2[1]);
+        const mon1 = m2[2];
+        const y1 = Number(m2[3]);
+        const d2 = Number(m2[4]);
+        const mon2 = m2[5] || mon1;
+        const y2 = Number(m2[6] || y1);
+        const midx1 = monthIndex(mon1);
+        const midx2 = monthIndex(mon2);
+        if (midx1 !== undefined && midx2 !== undefined) {
+          const start = toISODate(y1, midx1 + 1, d1);
+          const end = toISODate(y2, midx2 + 1, d2);
+          return { start, end, label: `dari ${d1} ${mon1} ${y1} sampai ${d2} ${mon2} ${y2}` };
+        }
+      }
+      return null;
+    };
+
+    const computeRange = (text: string): Range | null => {
+      const t = text.toLowerCase();
+      const { y, m, d } = todayJakarta();
+      // explicit range first
+      const explicit = parseExplicitRange(text);
+      if (explicit) return explicit;
+      // hari ini
+      if (t.includes('hari ini') || t.includes('today')) {
+        const day = toISODate(y, m, d);
+        return { start: day, end: day, label: 'hari ini' };
+      }
+      // kemarin/kemaren
+      if (t.includes('kemarin') || t.includes('kemaren') || t.includes('yesterday')) {
+        const dt = new Date(`${toISODate(y, m, d)}T00:00:00+07:00`);
+        dt.setDate(dt.getDate() - 1);
+        const ky = dt.getUTCFullYear();
+        const km = dt.getUTCMonth() + 1;
+        const kd = dt.getUTCDate();
+        const day = toISODate(ky, km, kd);
+        return { start: day, end: day, label: 'kemarin' };
+      }
+      // minggu ini / minggu lalu (Minggu-Sabtu; start Minggu)
+      if (t.includes('minggu ini') || t.includes('this week')) {
+        const base = new Date(`${toISODate(y, m, d)}T00:00:00+07:00`);
+        const dow = base.getUTCDay(); // Minggu=0
+        const start = new Date(base);
+        start.setDate(start.getDate() - dow);
+        const end = new Date(start);
+        end.setDate(start.getDate() + 6);
+        const s = toISODate(start.getUTCFullYear(), start.getUTCMonth() + 1, start.getUTCDate());
+        const e = toISODate(end.getUTCFullYear(), end.getUTCMonth() + 1, end.getUTCDate());
+        return { start: s, end: e, label: 'minggu ini' };
+      }
+      if (t.includes('minggu lalu') || t.includes('last week')) {
+        const base = new Date(`${toISODate(y, m, d)}T00:00:00+07:00`);
+        const dow = base.getUTCDay();
+        const end = new Date(base);
+        end.setDate(end.getDate() - dow - 1);
+        const start = new Date(end);
+        start.setDate(end.getDate() - 6);
+        const s = toISODate(start.getUTCFullYear(), start.getUTCMonth() + 1, start.getUTCDate());
+        const e = toISODate(end.getUTCFullYear(), end.getUTCMonth() + 1, end.getUTCDate());
+        return { start: s, end: e, label: 'minggu lalu' };
+      }
+      // bulan ini / bulan <nama>
+      if (t.includes('bulan ini') || t.includes('this month')) {
+        const s = toISODate(y, m, 1);
+        const endDate = new Date(`${toISODate(y, m, 1)}T00:00:00+07:00`);
+        endDate.setMonth(endDate.getMonth() + 1);
+        endDate.setDate(endDate.getDate() - 1);
+        const e = toISODate(endDate.getUTCFullYear(), endDate.getUTCMonth() + 1, endDate.getUTCDate());
+        return { start: s, end: e, label: 'bulan ini' };
+      }
+      for (const [name, idx] of Object.entries(MONTHS_ID)) {
+        if (t.includes(`bulan ${name}`) || t.includes(name) && t.includes('bulan')) {
+          const yearMatch = t.match(/(20\d{2}|19\d{2})/);
+          const yy = yearMatch ? Number(yearMatch[1]) : y;
+          const mm = idx + 1;
+          const s = toISODate(yy, mm, 1);
+          const endDate = new Date(`${toISODate(yy, mm, 1)}T00:00:00+07:00`);
+          endDate.setMonth(endDate.getMonth() + 1);
+          endDate.setDate(endDate.getDate() - 1);
+          const e = toISODate(endDate.getUTCFullYear(), endDate.getUTCMonth() + 1, endDate.getUTCDate());
+          return { start: s, end: e, label: `bulan ${name} ${yy}` };
+        }
+      }
+      // tahun ini / tahun lalu / tahun YYYY
+      if (t.includes('tahun ini') || t.includes('this year')) {
+        const s = toISODate(y, 1, 1);
+        const e = toISODate(y, 12, 31);
+        return { start: s, end: e, label: 'tahun ini' };
+      }
+      if (t.includes('tahun lalu') || t.includes('last year')) {
+        const s = toISODate(y - 1, 1, 1);
+        const e = toISODate(y - 1, 12, 31);
+        return { start: s, end: e, label: 'tahun lalu' };
+      }
+      const yearMatch = t.match(/(20\d{2}|19\d{2})/);
+      if (yearMatch && (t.includes('tahun') || t.includes('year'))) {
+        const yy = Number(yearMatch[1]);
+        return { start: toISODate(yy, 1, 1), end: toISODate(yy, 12, 31), label: `tahun ${yy}` };
+      }
+      return null;
+    };
+
+    const isExpenseQuery = /pengeluaran|expense|keluar/.test(lowerMsg);
+    const isIncomeQuery = /pemasukan|pendapatan|income|masuk/.test(lowerMsg);
+    const isAssetQuery = /aset|asset/.test(lowerMsg);
+    const range = computeRange(lowerMsg);
+
+    if (range && (isExpenseQuery || isIncomeQuery || isAssetQuery)) {
+      // Fetch user transactions via helper that sets RLS context
+      const all = await getAllTransactions();
+      const inRange = all.filter(t => {
+        const day = (t.date ?? '').slice(0, 10);
+        return day >= range.start && day <= range.end;
+      });
+
+      const sum = (type: 'expense'|'income'|'asset') => inRange
+        .filter(t => t.type === type)
+        .reduce((acc, t) => acc + Number(t.amount || 0), 0);
+
+      // Top categories for expense/income
+      const topCategories = (type: 'expense'|'income') => {
+        const map = new Map<string, number>();
+        for (const t of inRange) {
+          if (t.type !== type) continue;
+          const key = (t.category || 'other').toLowerCase();
+          map.set(key, (map.get(key) || 0) + Number(t.amount || 0));
+        }
+        return Array.from(map.entries())
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 3)
+          .map(([cat, total]) => `${cat}: Rp ${Number(total).toLocaleString('id-ID')}`);
+      };
+
+      const totalExpense = isExpenseQuery ? sum('expense') : undefined;
+      const totalIncome = isIncomeQuery ? sum('income') : undefined;
+      const totalAssetPurchase = isAssetQuery ? sum('asset') : undefined;
+      const assetCount = isAssetQuery ? inRange.filter(t => t.type === 'asset').length : undefined;
+
+      const fmt = (n?: number) => n === undefined ? '-' : `Rp ${Number(n).toLocaleString('id-ID')}`;
+
+      // Simple advice
+      let advice = '';
+      if (totalExpense && totalExpense > 1000000) {
+        advice = 'Pengeluaran cukup besar. Pertimbangkan review kategori belanja agar lebih efisien.';
+      } else if (totalIncome && totalIncome > 0 && (totalExpense ?? 0) > (totalIncome ?? 0)) {
+        advice = 'Pengeluaran melebihi pemasukan. Coba alokasikan anggaran lebih ketat minggu/bulan berikutnya.';
+      } else if (isAssetQuery && (assetCount ?? 0) > 0) {
+        advice = 'Aset tercatat dengan baik. Update nilai saat ini berkala untuk analisis kekayaan bersih.';
+      }
+
+      const lines: string[] = [`Periode: ${range.label}`];
+      if (isExpenseQuery) lines.push(`Total pengeluaran: ${fmt(totalExpense)}`);
+      if (isIncomeQuery) lines.push(`Total pemasukan: ${fmt(totalIncome)}`);
+      if (isAssetQuery) lines.push(`Aset tercatat: ${assetCount} item${(assetCount ?? 0) > 1 ? 's' : ''}, nilai pembelian: ${fmt(totalAssetPurchase)}`);
+      if (isExpenseQuery) {
+        const top = topCategories('expense');
+        if (top.length) lines.push(`Top kategori pengeluaran: ${top.join('; ')}`);
+      }
+      if (isIncomeQuery) {
+        const top = topCategories('income');
+        if (top.length) lines.push(`Top kategori pemasukan: ${top.join('; ')}`);
+      }
+      if (advice) lines.push(`Saran: ${advice}`);
+
+      return NextResponse.json({ message: lines.join('\n') });
     }
 
     const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
