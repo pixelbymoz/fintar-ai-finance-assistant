@@ -1,4 +1,4 @@
-﻿import { MainHeader } from "@/components/main-header";
+import { MainHeader } from "@/components/main-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,7 +38,7 @@ const features: Feature[] = [
     description:
       "Catat transaksi, tanyakan laporan, dan dapatkan insight keuangan melalui percakapan natural.",
     detail:
-      '"Fintar, berapa total pengeluaran bulan ini?" AI langsung menampilkan data terkini dan ringkasan singkat.',
+      'Fintar, berapa total pengeluaran bulan ini? AI langsung menampilkan data terkini dan ringkasan singkat.',
     icon: MessageCircle,
   },
   {
@@ -163,7 +163,7 @@ export default function Home() {
                   <div className="space-y-2 rounded-xl border border-dashed border-secondary/40 bg-secondary/10 p-4">
                     <p className="text-sm font-semibold text-primary">Anda</p>
                     <p className="text-sm text-muted-foreground">
-                      "Fintar, berapa total pengeluaran bulan ini?"
+                      &ldquo;Fintar, berapa total pengeluaran bulan ini?&rdquo;
                     </p>
                   </div>
                   <div className="space-y-2 rounded-xl bg-white p-4 shadow-sm">

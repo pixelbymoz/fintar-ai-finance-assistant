@@ -27,6 +27,7 @@ export default function Chat() {
   const [showHelp, setShowHelp] = useState(false);
   const stopStreamRef = useRef<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -75,12 +76,12 @@ export default function Chat() {
       }
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
-        onSubmit(new Event('submit') as unknown as React.FormEvent);
+        formRef.current?.requestSubmit();
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [input, loading, streaming]);
+  }, [loading, streaming]);
 
   const simulateStreaming = async (fullText: string) => {
     setStreaming(true);
@@ -254,7 +255,7 @@ export default function Chat() {
       )}
 
       {/* Input */}
-      <form onSubmit={onSubmit} className="p-4 border-t bg-white relative">
+      <form ref={formRef} onSubmit={onSubmit} className="p-4 border-t bg-white relative">
         {showHelp && (
           <div className="absolute bottom-16 right-4 w-[360px] bg-white border rounded-lg shadow-xl p-4 text-sm z-10">
             <button
