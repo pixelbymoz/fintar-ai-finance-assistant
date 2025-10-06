@@ -32,7 +32,19 @@ export default function RootLayout({
         <body className={`${openSans.variable} ${geistMono.variable} antialiased`}>
           {children}
           <GlobalChatLauncher />
-          <Toaster />
+          <Toaster
+            position="top-center"
+            closeButton
+            richColors
+            offset={12}
+            toastOptions={{
+              classNames: {
+                toast: "sm:max-w-[420px] max-w-[95vw]",
+                title: "text-foreground",
+                description: "text-muted-foreground",
+              },
+            }}
+          />
         </body>
       </html>
     </ClerkProvider>
