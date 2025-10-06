@@ -49,7 +49,6 @@ export default function Chat() {
       }
       if (draft) setInput(draft);
     } catch {}
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Persist messages and draft
@@ -81,7 +80,6 @@ export default function Chat() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [input, loading, streaming]);
 
   const simulateStreaming = async (fullText: string) => {
