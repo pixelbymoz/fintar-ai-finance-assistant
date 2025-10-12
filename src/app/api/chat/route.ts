@@ -606,7 +606,7 @@ Tips: Update nilai saat ini secara berkala agar analisis kekayaan Anda tetap aku
     });
 
     if (!resp.ok) {
-      let raw = await resp.text();
+      const raw = await resp.text();
       try {
         const err = JSON.parse(raw);
         const msg: string = err?.error?.message || err?.message || raw;
