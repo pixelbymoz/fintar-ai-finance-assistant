@@ -585,6 +585,8 @@ Tips: Update nilai saat ini secara berkala agar analisis kekayaan Anda tetap aku
       return NextResponse.json({ message: lines.join('\n') });
     }
 
+    const model = process.env.OPENROUTER_MODEL || "deepseek/deepseek-chat-v3-0324:free";
+
     const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -594,7 +596,7 @@ Tips: Update nilai saat ini secara berkala agar analisis kekayaan Anda tetap aku
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "deepseek/deepseek-chat-v3.1:free",
+        model,
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
           { role: "user", content: message },
@@ -604,8 +606,27 @@ Tips: Update nilai saat ini secara berkala agar analisis kekayaan Anda tetap aku
     });
 
     if (!resp.ok) {
-      const text = await resp.text();
-      return NextResponse.json({ error: `OpenRouter error: ${text}` }, { status: 502 });
+      let raw = await resp.text();
+      try {
+        const err = JSON.parse(raw);
+        const msg: string = err?.error?.message || err?.message || raw;
+        if (
+          resp.status === 404 &&
+          typeof msg === "string" &&
+          msg.toLowerCase().includes("no endpoints found matching your data policy")
+        ) {
+          return NextResponse.json(
+            {
+              error:
+                "Konfigurasi privasi OpenRouter Anda memblokir model gratis. Aktifkan opsi publikasi prompt untuk model gratis di halaman privacy (https://openrouter.ai/settings/privacy), atau ganti model lewat env `OPENROUTER_MODEL` ke model non-free/berbayar.",
+            },
+            { status: 502 }
+          );
+        }
+        return NextResponse.json({ error: `OpenRouter error: ${msg}` }, { status: 502 });
+      } catch {
+        return NextResponse.json({ error: `OpenRouter error: ${raw}` }, { status: 502 });
+      }
     }
 
     const data = await resp.json();
